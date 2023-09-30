@@ -5,7 +5,7 @@ router = APIRouter(prefix="/cert")
 
 
 
-router.get("/")
+@router.get("/")
 async def get():
     return 0
 
