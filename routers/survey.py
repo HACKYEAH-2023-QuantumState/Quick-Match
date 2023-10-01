@@ -42,13 +42,20 @@ async def post(db=Depends(get_db)):
     question_rank = []
     for q in further_question:
 
-        for i in range(min(len(further_question)-3,0)):
+        for i in range(min(len(further_question)-3,1)):
             u1_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[0][0],
                                                                    sql.models.Score.questionId == q.id).first()
             u2_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[1][0],
                                                                    sql.models.Score.questionId == q.id).first()
-            qr = abs(u1_mult.score-u2_mult.score)
+            if u1_mult is None:
+                u1_mult = sql.models.Score()
+                u1_mult.score = 0
 
+            if u2_mult is None:
+                u2_mult = sql.models.Score()
+                u2_mult.score = 0
+
+            qr = abs(u1_mult.score-u2_mult.score)
             question_rank.append((qr, q))
 
     question_rank.sort(reverse=True, key=lambda val:val[0])
