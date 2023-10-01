@@ -8,11 +8,20 @@ class Question(BaseModel):
         from_attributes = True
 
 
-class Response(BaseModel):
+
+
+
+class NextQuest(BaseModel):
     questionId: int
     questionText: str
+
     class Config:
         from_attributes = True
 
 
+class Response(BaseModel):
+    question: NextQuest
+    uni_rank: list
 
+    class Config:
+        from_attributes = True
