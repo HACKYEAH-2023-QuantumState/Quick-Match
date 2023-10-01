@@ -30,28 +30,13 @@ function Survey() {
         try {
             setError(null);
             const response = await axios.post('/survey/', questions);
-            const {id, text} = response.data;
-            setQuestionId(id);
-            setQuestion(text);
+            const questionResponse = response.data.question;
+            setQuestionId(questionResponse.questionId);
+            setQuestion(questionResponse.questionText);
             addQuestion();
         } catch (error) {
             console.error('Error fetching question:', error);
             setError('Failed to load the question. Please try again later.');
-        }
-    };
-
-    const handleResponse = async () => {
-        try {
-            // Send the user response to the backend
-            await axios.post('/api/submitResponse', {
-                questionId: questionId,
-                responseValue: userResponse,
-            });
-
-            // Fetch the next question
-            fetchQuestion();
-        } catch (error) {
-            console.error('Error submitting response:', error);
         }
     };
 
@@ -80,7 +65,7 @@ function Survey() {
                     </div>
                 )}
                 <button
-                    onClick={handleResponse}
+                    onClick={fetchQuestion}
                     className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md"
                 >
                     Next
