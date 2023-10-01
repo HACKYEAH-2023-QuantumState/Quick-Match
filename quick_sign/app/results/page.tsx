@@ -6,14 +6,11 @@ import {useRouter} from 'next/navigation';
 import {func} from 'three/examples/jsm/nodes/Nodes.js';
 
 axios.defaults.baseURL = 'http://127.0.0.1:8000';
-const univ = JSON.parse(localStorage.getItem("universities")) || [];
 
 const Result = () => {
-
+    const univ = JSON.parse(localStorage.getItem("universities")) || [];
     const router = useRouter();
-
     const checkStorage = () => {
-        console.log(univ.length)
         if (univ.length === 0) {
             router.push("/panel")
         }
@@ -21,7 +18,7 @@ const Result = () => {
 
     useEffect(() => {
         checkStorage();
-    }, []);
+    }, );
 
 
     return (
