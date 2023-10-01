@@ -26,7 +26,6 @@ function Survey() {
 
     const fetchFirstQuestion = async () => {
         try {
-            setError(null);
             const response = await axios.post('/survey/', answers);
             const questionResponse = response.data.question;
             setQuestionId(questionResponse.questionId);
@@ -40,9 +39,9 @@ function Survey() {
 
     const sendAnswer = async () => {
         try {
-            setError(null);
-            addAnswer()
-            const response = await axios.post('/survey/', answers);
+            const temp = {...answers, [questionId.toString()]: userResponse}
+            addAnswer();
+            const response = await axios.post('/survey/', temp);
             const questionResponse = response.data.question;
             setQuestionId(questionResponse.questionId);
             setQuestion(questionResponse.questionText);
