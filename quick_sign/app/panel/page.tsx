@@ -1,12 +1,12 @@
 'use client'
 import React, {useState, useEffect} from 'react';
-// import {useRouter} from 'next/router';
+import {useRouter} from 'next/navigation';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://127.0.0.1:8000';
 
 function Survey() {
-    // const router = useRouter();
+    const router = useRouter();
     const [userResponse, setUserResponse] = useState(0);
     const [question, setQuestion] = useState('');
     const [questionId, setQuestionId] = useState(0);
@@ -41,13 +41,11 @@ function Survey() {
 
     const sendAnswer = async () => {
         try {
-            if (questionId !== 0) {
-                const temp = {...answers, [questionId.toString()]: userResponse}
-                addAnswer();
-                const response = await axios.post('/survey/', temp);
-                const questionResponse = response.data.question;
-                setQuestionId(questionResponse.questionId);
-                setQuestion(questionResponse.questionText);
+            const temp = {...answers, [questionId.toString()]: userResponse}
+            addAnswer();
+            const response = await axios.post('/survey/', temp);
+            const questionResponse = response.data.question;
+            if (questionResponse.questionId === 0) {
                 const uni_rank = response.data.uni_rank;
                 const unis = []
                 for (const x of uni_rank) {
@@ -58,11 +56,13 @@ function Survey() {
                     }
                 }
                 localStorage.setItem('universities', JSON.stringify(unis));
+                router.push("/results")
             } else {
-                // router.push("/results")
-                console.log("Work plz")
+                setQuestionId(questionResponse.questionId);
+                setQuestion(questionResponse.questionText);
             }
-        } catch (error) {
+        } catch
+            (error) {
             console.error('Error fetching question:', error);
             setError('Failed to load the question. Please try again later.');
         }
