@@ -87,7 +87,7 @@ async def post(answers: dict[int, int], db=Depends(get_db), threshold=0.4, desir
     for r in results:
         u: sql.models.University = db.query(sql.models.University).filter(sql.models.University.id ==r[0]).first()
         results_uni.append((r[0], {"id": u.id, "name": u.name}))
-    resp = Response(question = nxt,uni_rank = results_uni)
+    resp = Response(question = nxt,uni_rank = results_uni[0:min(desired_unis,len(results_uni))])
 
-    return resp[0:min(desired_unis,len(resp))]
+    return resp
     # return (q.id, q.text)
