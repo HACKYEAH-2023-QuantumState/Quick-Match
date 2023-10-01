@@ -52,7 +52,7 @@ def question_diff_for_given_unis(db,u1_id, u2_id, q_id):
     return abs(u1-u2)
 
 @router.get("/")
-async def post(db=Depends(get_db)):
+async def post(db=Depends(get_db), threshold=0.4, desired_unis = 3):
     answers = {1: 10}
     universities: Iterable[sql.models.University] = db.query(sql.models.University).all()
 
@@ -61,8 +61,15 @@ async def post(db=Depends(get_db)):
 
     further_question = get_ot_yet_answered_questions(answers, db)
 
+    threshold_meet = False
+
+    if len(results) > desired_unis:
+        tr_pr = float(results[desired_unis - 2] - results[desired_unis - 1]) / results[desired_unis - 1]
+        if tr_pr >= threshold:
+            threshold_meet = True
+
     nxt = None
-    if len(further_question) > 0:
+    if len(further_question) > 0 and not threshold_meet :
         question_rank = []
         for q in further_question:
 
@@ -75,7 +82,7 @@ async def post(db=Depends(get_db)):
         nxt = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text)
     results_uni = []
     for r in results:
-        u: sql.models.University = db.query(sql.models.University).filter(sql.models.University.id ==r[1]).first()
+        u: sql.models.University = db.query(sql.models.University).filter(sql.models.University.id ==r[0]).first()
         results_uni.append((r[0], {"id": u.id, "name": u.name}))
 
     resp = Response(question = nxt,uni_rank = results_uni)
