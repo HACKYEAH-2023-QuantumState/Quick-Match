@@ -54,7 +54,7 @@ def question_diff_for_given_unis(db,u1_id, u2_id, q_id):
 @router.get("/")
 async def post(db=Depends(get_db)):
     answers = {1: 10}
-    universities = db.query(sql.models.University).all()
+    universities: Iterable[sql.models.University] = db.query(sql.models.University).all()
 
     results = get_unis_score(universities,answers,db)
     results.sort(reverse=True, key=lambda val: val[1])
@@ -73,7 +73,10 @@ async def post(db=Depends(get_db)):
         question_rank.sort(reverse=True, key=lambda val:val[0])
 
         nxt = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text)
+    results_uni = []
+    for r in results:
+        results_uni.append((r[0],db.query(sql.models.University).filter(sql.models.University.id ==r[1]).first()))
 
-    resp = Response(question = nxt,uni_rank = results)
+    resp = Response(question = nxt,uni_rank = results_uni)
     return resp
     # return (q.id, q.text)
