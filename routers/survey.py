@@ -52,9 +52,11 @@ def question_diff_for_given_unis(db,u1_id, u2_id, q_id):
 
     return abs(u1-u2)
 
-@router.get("/")
-async def post(db=Depends(get_db), threshold=0.4, desired_unis = 3):
-    answers = {1: 10}
+@router.post("/")
+async def post(answers: dict[int, int], db=Depends(get_db), threshold=0.4, desired_unis = 3):
+    desired_unis = int(desired_unis)
+    threshold = float(threshold)
+
     universities: Iterable[sql.models.University] = db.query(sql.models.University).all()
 
     results = get_unis_score(universities,answers,db)
@@ -65,7 +67,7 @@ async def post(db=Depends(get_db), threshold=0.4, desired_unis = 3):
     threshold_meet = False
 
     if len(results) > desired_unis:
-        tr_pr = float(results[desired_unis - 2] - results[desired_unis - 1]) / results[desired_unis - 1]
+        tr_pr = float(results[desired_unis - 2][1] - results[desired_unis - 1][1]) / results[desired_unis - 1][1]
         if tr_pr >= threshold:
             threshold_meet = True
 
