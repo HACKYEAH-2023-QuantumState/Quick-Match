@@ -75,7 +75,8 @@ async def post(db=Depends(get_db)):
         nxt = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text)
     results_uni = []
     for r in results:
-        results_uni.append((r[0],db.query(sql.models.University).filter(sql.models.University.id ==r[1]).first()))
+        u: sql.models.University = db.query(sql.models.University).filter(sql.models.University.id ==r[1]).first()
+        results_uni.append((r[0], {"id": u.id, "name": u.name}))
 
     resp = Response(question = nxt,uni_rank = results_uni)
     return resp
