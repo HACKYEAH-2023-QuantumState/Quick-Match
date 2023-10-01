@@ -15,6 +15,7 @@ app = FastAPI()
 
 origins = [
     "http://127.0.0.1:3000",
+    "http://localhost:3000"
 ]
 
 app.add_middleware(
@@ -33,4 +34,4 @@ app.include_router(admin.router)
 populate(10, 20)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

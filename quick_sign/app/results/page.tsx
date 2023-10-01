@@ -12,7 +12,7 @@ const Result = () => {
     const router = useRouter();
     const checkStorage = () => {
         if (univ.length === 0) {
-            router.push("/panel")
+         router.push("/panel")
         }
     }
 
@@ -23,12 +23,12 @@ const Result = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white-100">
-            <div className="bg-gray-300 rounded-lg shadow p-10 w-96 text-black">
-                <div className="flex items-center space-x-2 mt-2">
-                    <h2>Your best match is:</h2>
+            <div className="bg-gray-300 rounded-lg shadow p-10 w-100 h-100 text-black">
+                <div className="flex items-center space-x-2 mt-2 flex-col">
+                    <h2 className='text-xl'>Your best match is:</h2>
                     <ul>
                         {univ.map((element: any, index: any) => (
-                            <li key={index}>{element}</li>
+                            <li className='text-3xl' key={index}>{element}</li>
                         ))}
                     </ul>
                     <p>You are not satisfied?</p>
