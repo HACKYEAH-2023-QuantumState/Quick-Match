@@ -1,66 +1,79 @@
 import math
+from typing import Iterable
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.testing import skip
 
 import sql
 from sql.database import get_db
+from sql.models import University
 from sql.schemas import Response, NextQuest
 
 router = APIRouter(prefix="/survey")
 
 
-@router.get("/")
-async def post(db=Depends(get_db)):
-    answers = {1: 10}
-    universities = db.query(sql.models.University).all()
-
+def get_unis_score(universities: Iterable[University], answers: dict, db):
     results = []
 
     for uni in universities:
         uni_score = 0
         for ans_id, ans_score in answers.items():
-            question_score = db.query(sql.models.Score).filter(sql.models.Score.uniId == uni.id,
-                                                               sql.models.Score.questionId == ans_id).first()
+            question_score = db.query(sql.models.Score).filter(sql.models.Score.uniId == uni.id, sql.models.Score.questionId == ans_id).first()
             if question_score is None:
                 question_score = 0
             uni_score += ans_score * question_score.score
 
         results.append((uni.id, uni_score))
+    return results
 
-    results.sort(reverse=True, key=lambda val: val[1])
-
+def get_ot_yet_answered_questions(answers, db):
     all_questions = db.query(sql.models.Question).all()
 
     further_question = []
     for quest in all_questions:
         if quest.id not in answers.keys():
             further_question.append(quest)
+    return further_question
 
+def question_diff_for_given_unis(db,u1_id, u2_id, q_id):
+    u1_score: sql.models.Score = db.query(sql.models.Score).filter(sql.models.Score.uniId == u1_id,
+                                                sql.models.Score.questionId == q_id).first()
+    u2_score: sql.models.Score = db.query(sql.models.Score).filter(sql.models.Score.uniId == u2_id,
+                                                sql.models.Score.questionId == q_id).first()
+    u1 = 0
+    u2 = 0
 
+    if u1_score is not None:
+        u1 = u1_score.score
 
-    question_rank = []
-    for q in further_question:
+    if u2_score is not None:
+        u2 = u1_score.score
 
-        for i in range(min(len(further_question)-3,1)):
-            u1_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[0][0],
-                                                                   sql.models.Score.questionId == q.id).first()
-            u2_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[1][0],
-                                                                   sql.models.Score.questionId == q.id).first()
-            if u1_mult is None:
-                u1_mult = sql.models.Score()
-                u1_mult.score = 0
+    return abs(u1-u2)
 
-            if u2_mult is None:
-                u2_mult = sql.models.Score()
-                u2_mult.score = 0
+@router.get("/")
+async def post(db=Depends(get_db)):
+    answers = {1: 10}
+    universities = db.query(sql.models.University).all()
 
-            qr = abs(u1_mult.score-u2_mult.score)
-            question_rank.append((qr, q))
+    results = get_unis_score(universities,answers,db)
+    results.sort(reverse=True, key=lambda val: val[1])
 
-    question_rank.sort(reverse=True, key=lambda val:val[0])
+    further_question = get_ot_yet_answered_questions(answers, db)
 
-    print(question_rank)
-    resp = Response(question = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text),uni_rank = results)
+    nxt = None
+    if len(further_question) > 0:
+        question_rank = []
+        for q in further_question:
+
+            for i in range(max(min(len(further_question)-1,3),0)):
+                qr = question_diff_for_given_unis(db, results[0][0], results[i+1][0], q.id)
+                question_rank.append((qr, q))
+
+        question_rank.sort(reverse=True, key=lambda val:val[0])
+
+        nxt = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text)
+
+    resp = Response(question = nxt,uni_rank = results)
     return resp
     # return (q.id, q.text)
