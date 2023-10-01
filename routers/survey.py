@@ -20,7 +20,8 @@ def get_unis_score(universities: Iterable[University], answers: dict, db):
         for ans_id, ans_score in answers.items():
             question_score = db.query(sql.models.Score).filter(sql.models.Score.uniId == uni.id, sql.models.Score.questionId == ans_id).first()
             if question_score is None:
-                question_score = 0
+                question_score = sql.models.Score()
+                question_score.score = 0
             uni_score += ans_score * question_score.score
 
         results.append((uni.id, uni_score))
@@ -77,7 +78,7 @@ async def post(db=Depends(get_db)):
     for r in results:
         u: sql.models.University = db.query(sql.models.University).filter(sql.models.University.id ==r[1]).first()
         results_uni.append((r[0], {"id": u.id, "name": u.name}))
-
     resp = Response(question = nxt,uni_rank = results_uni)
+
     return resp
     # return (q.id, q.text)

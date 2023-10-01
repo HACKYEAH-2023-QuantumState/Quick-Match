@@ -23,6 +23,7 @@ def populate(uni_count, question_count):
             new_score = sql.models.Score()
             new_score.questionId = question_index
             new_score.uniId = uni_index
+            new_score.score = random.randrange(11)
             db.add(new_score)
 
     db.commit()
