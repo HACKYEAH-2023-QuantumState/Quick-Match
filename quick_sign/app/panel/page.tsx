@@ -9,31 +9,43 @@ function Survey() {
     const [question, setQuestion] = useState('');
     const [questionId, setQuestionId] = useState(0);
     const [error, setError] = useState(null);
-    const [questions, setQuestions] = useState<{ [key: string]: number }>({});
+    const [answers, setAnswers] = useState<{ [key: string]: number }>({});
 
     useEffect(() => {
-        fetchQuestion();
+        fetchFirstQuestion();
     }, []);
 
-    const addQuestion = () => {
+    const addAnswer = () => {
         if (question) {
-            setQuestions(prev => ({
+            setAnswers(prev => ({
                 ...prev,
-                [question]: questionId
+                [questionId.toString()]: userResponse
             }));
-            setQuestion('');
-            setQuestionId(prevId => prevId + 1);
         }
     };
 
-    const fetchQuestion = async () => {
+    const fetchFirstQuestion = async () => {
         try {
             setError(null);
-            const response = await axios.post('/survey/', questions);
+            const response = await axios.post('/survey/', answers);
             const questionResponse = response.data.question;
             setQuestionId(questionResponse.questionId);
             setQuestion(questionResponse.questionText);
-            addQuestion();
+        } catch (error) {
+            console.error('Error fetching question:', error);
+            setError('Failed to load the question. Please try again later.');
+        }
+    };
+
+
+    const sendAnswer = async () => {
+        try {
+            setError(null);
+            addAnswer()
+            const response = await axios.post('/survey/', answers);
+            const questionResponse = response.data.question;
+            setQuestionId(questionResponse.questionId);
+            setQuestion(questionResponse.questionText);
         } catch (error) {
             console.error('Error fetching question:', error);
             setError('Failed to load the question. Please try again later.');
@@ -47,7 +59,7 @@ function Survey() {
                     <p className="text-red-600">{error}</p>
                 ) : (
                     <div>
-                        <p className="text-xl font-semibold">{question}</p>
+                        <p className="text-black text-xl font-semibold">{question}</p>
                         <div className="flex items-center space-x-2 mt-2">
                             <input
                                 type="range"
@@ -65,7 +77,7 @@ function Survey() {
                     </div>
                 )}
                 <button
-                    onClick={fetchQuestion}
+                    onClick={sendAnswer}
                     className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md"
                 >
                     Next
