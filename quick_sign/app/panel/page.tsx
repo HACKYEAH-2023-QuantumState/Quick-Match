@@ -70,7 +70,7 @@ function Survey() {
                                 onChange={(e) => setUserResponse(parseInt(e.target.value))}
                             />
                             <span className="text-gray-600">
-                {['Rawly Not', 'Rather Not', 'I Do Not Know', 'Rather Yes', 'Rawly Yes'][userResponse + 2]}
+                {['Rawly Not', 'Rather Not', 'I Don\'t Know', 'Rather Yes', 'Rawly Yes'][userResponse + 2]}
               </span>
                         </div>
                     </div>
