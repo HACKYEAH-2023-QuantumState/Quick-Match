@@ -17,6 +17,6 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(survey.router)
 app.include_router(admin.router)
 
-populate(10, 50)
+populate(10, 20)
 
 

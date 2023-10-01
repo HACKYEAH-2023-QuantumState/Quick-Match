@@ -8,22 +8,22 @@ import sql.database
 
 def populate(uni_count, question_count):
     db = sql.database.SessionLocal()
-    for uni in range(1,uni_count):
+    for uni in range(1,uni_count+1):
         new_uni = sql.models.University()
         new_uni.name = get_random_name()
         db.add(new_uni)
 
-    for question in range(1,question_count):
+    for question in range(1,question_count+1):
         new_question = sql.models.Question()
         new_question.text = get_random_name()
         db.add(new_question)
 
-    for uni_index in range(1, uni_count):
-        for question_index in range(1, question_count):
+    for uni_index in range(1, uni_count+1):
+        for question_index in range(1, question_count+1):
             new_score = sql.models.Score()
             new_score.questionId = question_index
             new_score.uniId = uni_index
-            new_score.score = random.randrange(11)
+            new_score.score = random.randrange(-5, 5)
             db.add(new_score)
 
     db.commit()

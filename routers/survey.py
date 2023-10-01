@@ -65,13 +65,13 @@ async def post(answers: dict[int, int], db=Depends(get_db), threshold=0.4, desir
     further_question = get_ot_yet_answered_questions(answers, db)
 
     threshold_meet = False
-
-    if len(results) > desired_unis:
-        tr_pr = float(results[desired_unis - 2][1] - results[desired_unis - 1][1]) / results[desired_unis - 1][1]
+    if len(results) > desired_unis and results[0][1] != 0:
+        tr_pr = abs(float(results[desired_unis - 2][1] - results[desired_unis - 1][1]) / results[0][1])
+        print(tr_pr)
         if tr_pr >= threshold:
             threshold_meet = True
 
-    nxt = None
+    nxt = NextQuest(questionId=0, questionText="")
     if len(further_question) > 0 and not threshold_meet :
         question_rank = []
         for q in further_question:
