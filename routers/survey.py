@@ -22,11 +22,13 @@ async def post(db=Depends(get_db)):
         for ans_id, ans_score in answers.items():
             question_score = db.query(sql.models.Score).filter(sql.models.Score.uniId == uni.id,
                                                                sql.models.Score.questionId == ans_id).first()
-            uni_score += ans_score * question_score
+            if question_score is None:
+                question_score = 0
+            uni_score += ans_score * question_score.score
 
         results.append((uni.id, uni_score))
 
-    results.sort(reversed=True, key=lambda val: val[1])
+    results.sort(reverse=True, key=lambda val: val[1])
 
     all_questions = db.query(sql.models.Question).all()
 
@@ -40,17 +42,18 @@ async def post(db=Depends(get_db)):
     question_rank = []
     for q in further_question:
 
-        for i in range(min(len(further_question)-2,4)):
+        for i in range(min(len(further_question)-3,0)):
             u1_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[0][0],
                                                                    sql.models.Score.questionId == q.id).first()
-            u2_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[1+1][0],
+            u2_mult = db.query(sql.models.Score).filter(sql.models.Score.uniId == results[1][0],
                                                                    sql.models.Score.questionId == q.id).first()
-            qr = abs(u1_mult-u2_mult)
+            qr = abs(u1_mult.score-u2_mult.score)
 
             question_rank.append((qr, q))
 
-    question_rank.sort(reversed=True, key=lambda val:val[0])
+    question_rank.sort(reverse=True, key=lambda val:val[0])
 
+    print(question_rank)
     resp = Response(question = NextQuest(questionId = question_rank[0][1].id, questionText = question_rank[0][1].text),uni_rank = results)
     return resp
     # return (q.id, q.text)

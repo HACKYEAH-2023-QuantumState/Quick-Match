@@ -1,6 +1,29 @@
 from pydantic import BaseModel
 
 
+class NewUni(BaseModel):
+    uniName: str
+
+    class Config:
+        from_attributes = True
+
+
+class NewQuestion(BaseModel):
+    questionText: str
+
+    class Config:
+        from_attributes = True
+
+
+class NewScore(BaseModel):
+    questionId: int
+    uniId: int
+    score: int
+
+    class Config:
+        from_attributes = True
+
+
 class Question(BaseModel):
     lastQuestions: dict[int, int]
 
